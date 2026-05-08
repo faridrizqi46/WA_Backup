@@ -1,0 +1,405 @@
+# Component Interface Specifications
+
+## Core Types (types/index.ts)
+
+### KPIMetrics
+| Field | Type |
+|-------|------|
+| revenueRealization | number |
+| revenuePlan | number |
+| accountRealization | number |
+| accountPlan | number |
+| currentQuarter | number |
+| currentQuarterLabel | string |
+| previousQuarter | number |
+| previousQuarterLabel | string |
+| generatedLeads | number |
+| topIndustries | string[] |
+
+### IndustryData
+| Field | Type |
+|-------|------|
+| name | string |
+| plan | number |
+| realization | number |
+
+### Opportunity
+| Field | Type |
+|-------|------|
+| product | string |
+| company | string |
+| companySlug? | string |
+| potentialValue | number |
+| offerDate | string |
+| confidence | 'High' \| 'Mid' \| 'Low' |
+
+### FinancialMetric
+| Field | Type |
+|-------|------|
+| label | string |
+| value | string |
+| direction | 'up' \| 'down' |
+
+### CompanyNode
+| Field | Type |
+|-------|------|
+| name | string |
+| ownershipType | string |
+| city | string |
+| stateProvince | string |
+| country | string |
+| ibrProduct | string |
+| isAnchor? | boolean |
+| indent? | number |
+| prefix? | '-' \| '+' |
+
+### ValueChainNode
+| Field | Type |
+|-------|------|
+| id | string |
+| name | string |
+| segment | 'Corporate' \| 'Commercial' \| 'SME' \| 'Micro' |
+| clientType | 'Supplier' \| 'Local Distributor' \| 'Global Distributor' |
+| tier | 0 \| 1 \| 2 |
+
+### BusinessBenefit
+| Field | Type |
+|-------|------|
+| label | string |
+| value | string |
+| positive | boolean |
+
+### DataSource
+| Field | Type |
+|-------|------|
+| title | string |
+| description | string |
+| sources | string[] |
+
+### OpportunityDetail
+| Field | Type |
+|-------|------|
+| potentialValueDisplay | string |
+| potentialValueUnit | string |
+| businessBenefits | BusinessBenefit[] |
+| dataSources | DataSource[] |
+
+---
+
+### XAI Scoring Interfaces
+
+#### XaiRmChallenge
+| Field | Type |
+|-------|------|
+| challenge | string |
+| response | string |
+
+#### XaiDimension
+| Field | Type |
+|-------|------|
+| dimension | string |
+| score | number |
+| confidenceFlag | 'verified' \| 'inferred' \| 'estimated' |
+| evidence | string[] |
+| rmChallenge | XaiRmChallenge |
+
+#### XaiScoring
+| Field | Type |
+|-------|------|
+| overallScore | number |
+| scoreLabel | string |
+| dimensions | XaiDimension[] |
+
+---
+
+### Trade Intelligence Interfaces
+
+#### BolRecord
+| Field | Type |
+|-------|------|
+| bolNumber | string |
+| arrivalDate | string |
+| supplier | string \| null |
+| supplierConfirmed | boolean |
+| productShort | string |
+| grossWeightKgs | number |
+| containerCount | number |
+| portOfDischarge | string \| null |
+| vesselCarrier | string |
+
+#### TradeIntelStat
+| Field | Type |
+|-------|------|
+| label | string |
+| value | string |
+| unit? | string |
+
+#### TradeSupplierShare
+| Field | Type |
+|-------|------|
+| name | string |
+| weightKgs | number |
+| weightLabel | string |
+| color | string |
+
+#### DataLineageItem
+| Field | Type |
+|-------|------|
+| title | string |
+| description | string |
+| reliability | 'highest' \| 'high' \| 'medium' \| 'low' |
+
+#### TradeIntelligenceBrief
+| Field | Type |
+|-------|------|
+| title | string |
+| agentLabel | string |
+| dataRange | string |
+| coverageNote | string |
+| primaryStats | TradeIntelStat[] |
+| secondaryStats | TradeIntelStat[] |
+| bolRecords | BolRecord[] |
+| supplierShare | TradeSupplierShare[] |
+| tableSummaryNote | string |
+| xaiScoring? | XaiScoring |
+| dataLineage? | DataLineageItem[] |
+
+---
+
+### Account Interfaces
+
+#### AccountOpportunityItem
+| Field | Type |
+|-------|------|
+| offeredProduct | string |
+| insight | string |
+| confidenceLevel | 'High' \| 'Mid' \| 'Low' |
+| potentialValue | string |
+| offerDate | string |
+| reason | string |
+| detail? | OpportunityDetail |
+| isLoanAdvisory? | boolean |
+| urgency? | 'Urgent' \| 'This Month' \| 'This Quarter' |
+| recommendedAction? | string |
+| deadline? | string |
+| tradeIntelligence? | TradeIntelligenceBrief |
+
+#### RelatedContact
+| Field | Type |
+|-------|------|
+| name | string |
+| title | string |
+| email | string |
+| phone | string |
+| photo? | string |
+
+#### PieSlice
+| Field | Type |
+|-------|------|
+| name | string |
+| value | number |
+| color | string |
+
+#### InsightsData
+| Field | Type |
+|-------|------|
+| industryInsights | string[] |
+| clientInsights | string[] |
+
+#### AccountInsightsRelated
+| Field | Type |
+|-------|------|
+| defaultInsights | InsightsData |
+| productPortion | PieSlice[] |
+| walletShare | PieSlice[] |
+| opportunityCount | number |
+| totalOpportunityAmount | string |
+| opportunities | AccountOpportunityItem[] |
+| contacts | RelatedContact[] |
+
+#### AccountDetail
+| Field | Type |
+|-------|------|
+| id | string |
+| name | string |
+| layerId | string |
+| industry | string |
+| type | string |
+| segment | string |
+| cfoCount | number |
+| accountNumber | string |
+| description | string |
+| headquarters | string |
+| latitude | string |
+| longitude | string |
+| alsoFoundAt | string[] |
+| financialMetrics | FinancialMetric[] |
+| companyTree | CompanyNode[] |
+| keyHighlight | string |
+| valueChainNodes | ValueChainNode[] |
+| insightsRelated? | AccountInsightsRelated |
+
+---
+
+### Search & Crawl Interfaces
+
+#### SearchResult
+| Field | Type |
+|-------|------|
+| title | string |
+| link | string |
+| snippet | string |
+| date? | string |
+
+#### CrawlResult
+| Field | Type |
+|-------|------|
+| content? | string |
+| markdown? | string |
+| metadata? | Record<string, unknown> |
+| error? | string |
+| jobId? | string |
+| status? | string |
+
+#### IngestionResult
+| Field | Type |
+|-------|------|
+| searchQuery | string |
+| searchResults | SearchResult[] |
+| crawlResults | CrawlResult[] |
+| totalSearchResults | number |
+| totalCrawled | number |
+| errors | string[] |
+
+---
+
+## Component-Specific Interfaces
+
+### AccountDetailsPanel
+**Props:**
+- `account: AccountDetail`
+
+### AccountHeader
+**Props:**
+- `account: AccountDetail`
+
+**Sub-components:**
+- `MetricChip` — `{ label, value, direction: 'up' | 'down' }`
+
+### AccountDetailTabs
+**Props:**
+- `children: (activeTab: string) => React.ReactNode`
+
+### AccountInformation
+**Props:**
+- `account: AccountDetail`
+
+### AccountDetailsPanel
+**Props:**
+- `account: AccountDetail`
+
+### CompanyTree
+**Props:**
+- `nodes: CompanyNode[]`
+
+### KeyHighlight
+**Props:**
+- `text: string`
+
+### ValueChain
+Internal types:
+- `NodeType = 'Supplier' | 'Local Customer' | 'Global Customer'`
+- `ChainNode = { id: string; name: string; nodeType: NodeType }`
+- `T2ChainNode = ChainNode & { parentId: string }`
+
+### InsightsRelated
+**Props:**
+- `account: AccountDetail`
+
+Internal types:
+- `InsightsSnapshot = { industryInsights: string[]; clientInsights: string[]; generatedAt: string }`
+- `URGENCY_CONFIG = Record<string, { bg: string; text: string; dot: string; label: string }>`
+
+### OpportunityDetail
+**Props:**
+- `opportunity: AccountOpportunityItem`
+- `onBack: () => void`
+
+Sub-components:
+- `Field` — `{ label, value }`
+- `MetricCard` — `{ title, value, sub }`
+
+### TradeIntelligenceBriefPanel
+**Props:**
+- `brief: TradeIntelligenceBrief`
+
+### XaiScoringPanel
+**Props:**
+- `xai: XaiScoring`
+- `dataLineage?: DataLineageItem[]`
+
+Internal types:
+- `Tab = 'xai' | 'lineage'`
+- `FLAG_STYLES = Record<string, { pill: string; bar: string; dot: string }>`
+- `RELIABILITY_STYLES = Record<string, string>`
+- `TabButton` — `{ label, active, onClick }`
+
+### LoanGracePeriodDetail
+**Props:**
+- `onBack: () => void`
+
+Internal types:
+- `FacilityWithBank = LoanFacility & { bankShortName: string; bankFull: string }`
+
+### ShipmentWindowForecast
+**Props:**
+- `bolRecords: BolRecord[]`
+- `opportunityScore?: number`
+
+### MeetingKit
+**Props:**
+- `lastDate: Date`
+- `supplier: string`
+- `carrier: string`
+- `lastPort: string`
+- `containers: number`
+- `winStart: Date`
+- `winEnd: Date`
+- `lcDeadline: Date`
+- `avgFreq: number`
+- `ports: string[]`
+- `score: number`
+- `todayDate: Date`
+- `totalBols: number`
+
+### ConfidenceBadge (UI)
+**Props:**
+- `level: 'High' | 'Mid' | 'Low'`
+
+---
+
+## Data Files
+
+### japfaLoanGracePeriods (data/japfaLoanGracePeriods.ts)
+Exports:
+- `japfaLoanGracePeriods: LoanGracePeriodGroup[]`
+- `LoanFacility`
+- `LoanGracePeriodGroup`
+
+### CorporateProductParametersService
+Types:
+- `ProductParameter = { id, name, description, embedding? }`
+- `CrawlEmbeddingResult = { id, content, distance, metadata? }`
+- `EvidenceSet = { productId, productName, evidence: CrawlEmbeddingResult[] }`
+- `ProductSignal = { productId, productName, signals, summary, confidence, rawEvidenceCount }`
+- `SignalExtractionResult = { companyId, locale, productSignals, timestamp }`
+- `EnvironmentDetails = Record<string, ProductParameter>`
+
+Functions:
+- `parseCorporateProductParameters(content): EnvironmentDetails`
+- `parseCorporateProductParametersFromFile(filePath): EnvironmentDetails`
+- `parseCorporateProductParametersByLocale(locale): EnvironmentDetails`
+- `embedProductParameters(locale): Promise<EnvironmentDetails>`
+- `retrieveByProductParameters(companyIdOrCode, locale, topK): Promise<EvidenceSet[]>`
+- `extractSignalsFromEvidence(evidenceSets, companyId, locale): Promise<SignalExtractionResult>`
+- `retrieveAndExtractSignals(companyIdOrCode, locale, topK): Promise<SignalExtractionResult>`

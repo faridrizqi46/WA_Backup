@@ -1,0 +1,366 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// BASE MODELS
+// ============================================
+
+model Company {
+  id           String        @id @default(uuid())
+  companyName  String
+  industries   String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  crawlResults CrawlResult[]
+  accounts     Account[]
+}
+
+model CrawlResult {
+  id         String   @id @default(uuid())
+  companyId  String
+  url        String
+  title      String
+  content    String?
+  embedding  String?
+  metadata   Json?
+  jobId      String?
+  status     String?
+  createdAt  DateTime @default(now())
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// ACCOUNT & FINANCIAL
+// ============================================
+
+model Account {
+  id              String   @id @default(uuid())
+  companyId       String   @unique
+  name            String
+  layerId         String
+  industry        String
+  type            String
+  segment         String
+  cfoCount        Int
+  accountNumber   String
+  description     String
+  headquarters    String
+  latitude        String
+  longitude       String
+  alsoFoundAt     String[]
+  keyHighlight    String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company         Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  financialMetrics FinancialMetric[]
+  companyTree     CompanyTreeNode[]
+  opportunities   Opportunity[]
+  productSignals  ProductSignal[]
+  insightsRelated InsightsRelated?
+  relatedContacts RelatedContact[]
+  insightHistory InsightHistory[]
+  valueChainNodes ValueChainNode[]
+  loanFacilities  LoanFacilities[]
+}
+
+model FinancialMetric {
+  id         String @id @default(uuid())
+  accountId  String
+  label      String
+  value      String
+  direction  String // 'up' | 'down'
+
+  account    Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model CompanyTreeNode {
+  id             String  @id @default(uuid())
+  accountId      String
+  name           String
+  ownershipType  String
+  city           String
+  stateProvince  String
+  country        String
+  ibrProduct     String
+  isAnchor       Boolean @default(false)
+  indent         Int     @default(0)
+  prefix         String? // '-' | '+'
+
+  account        Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// OPPORTUNITIES & INSIGHTS
+// ============================================
+
+model Opportunity {
+  id               String   @id @default(uuid())
+  accountId        String
+  offeredProduct   String
+  insight          String
+  confidenceLevel  String   // 'High' | 'Mid' | 'Low'
+  potentialValue   String
+  offerDate        String
+  reason           String
+  isLoanAdvisory   Boolean  @default(false)
+  urgency          String?  // 'Urgent' | 'This Month' | 'This Quarter'
+  recommendedAction String?
+  deadline         String?
+
+  account          Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  detail           OpportunityDetail?
+  xaiScoring       XaiScoring?
+  tradeIntelligence TradeIntelligence?
+  dataLineage      DataLineage[]
+  tradeKPIResults  TradeKPIResult[]
+}
+
+model XaiScoring {
+  id             String      @id @default(uuid())
+  opportunityId  String      @unique
+  overallScore   Int
+  scoreLabel     String
+  dimensions     Json        // XaiDimension[]
+
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+}
+
+model TradeIntelligence {
+  id             String      @id @default(uuid())
+  opportunityId  String      @unique
+  title          String
+  agentLabel     String
+  dataRange      String
+  coverageNote   String
+  primaryStats   Json        // TradeIntelStat[]
+  secondaryStats Json        // TradeIntelStat[]
+  supplierShare  Json        // TradeSupplierShare[]
+  tableSummaryNote String
+  bolRecords      BOLRecord[]
+
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+}
+
+model BOLRecord {
+  id                    String   @id @default(uuid())
+  tradeIntelligenceId   String
+  arrivalDate           DateTime
+  bolNumber             String
+  containerCount        Int
+  grossWeightKgs        Int
+  portOfDischarge       String
+  productShort          String
+  supplier              String
+  supplierConfirmed     Boolean
+  vesselCarrier         String?
+  refURL                String?
+
+  // Extended fields for KPI extraction
+  shipmentId            String?
+  containerId           String?
+  shipmentDate          DateTime?
+  paymentProxyFlag      String?   // 'swift' | 'lc' | 'normal'
+  customsDeclarationId  String?
+  shipmentValueEstimate Float?
+  unitPriceEstimate     Float?
+  shipmentMonth         Int?      // 1-12
+  shipmentYear          Int?
+
+  tradeIntelligence TradeIntelligence @relation(fields: [tradeIntelligenceId], references: [id], onDelete: Cascade)
+}
+
+model DataLineage {
+  id             String      @id @default(uuid())
+  opportunityId  String
+  title          String
+  description    String
+  reliability    String      // 'highest' | 'high' | 'medium' | 'low'
+
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+}
+
+model OpportunityDetail {
+  id                    String  @id @default(uuid())
+  opportunityId         String  @unique
+  potentialValueDisplay String
+  potentialValueUnit    String
+  businessBenefits      Json    // BusinessBenefit[]
+  dataSources           Json    // DataSource[]
+
+  opportunity           Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+}
+
+model ProductSignal {
+  id              String   @id @default(uuid())
+  accountId       String
+  productId       String   // '1' | '2' | '3' | '4'
+  productName     String
+  signals         String[] // extracted signals
+  summary         String
+  confidence      String   // 'high' | 'medium' | 'low'
+  rawEvidenceCount Int
+  timestamp       DateTime @default(now())
+
+  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, productId])
+}
+
+model InsightHistory {
+  id               String   @id @default(uuid())
+  accountId        String
+  industryInsights Json
+  clientInsights   Json
+  query            String
+  generatedAt      DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model InsightsRelated {
+  id                 String   @id @default(uuid())
+  accountId          String   @unique
+  defaultInsights    Json     // InsightsData { industryInsights, clientInsights }
+  productPortion     Json     // PieSlice[]
+  walletShare        Json     // PieSlice[]
+  opportunityCount   Int
+  totalOpportunityAmount String
+
+  account            Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model RelatedContact {
+  id        String  @id @default(uuid())
+  accountId String
+  name      String
+  title     String
+  email     String
+  phone     String
+  photo     String?
+
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+model ValueChainNode {
+  id            String  @id @default(uuid())
+  accountId     String
+  company       String
+  parentCompany String?
+  segment       String // 'Corporate' | 'Commercial' | 'SME' | 'Micro'
+  clientType    String // 'Supplier' | 'Local Distributor' | 'Global Distributor'
+  tier          Int    // 0 | 1 | 2
+
+  account       Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// SEARCH RESULTS (for ingestion tracking)
+// ============================================
+
+model SearchResult {
+  id        String   @id @default(uuid())
+  query     String
+  title     String
+  link      String
+  snippet   String?
+  date      String?
+  createdAt DateTime @default(now())
+}
+
+// ============================================
+// KPI & DASHBOARD
+// ============================================
+
+model KPIMetrics {
+  id                  String   @id @default(uuid())
+  revenueRealization  Float
+  revenuePlan         Float
+  accountRealization  Float
+  accountPlan         Float
+  currentQuarter      Int
+  currentQuarterLabel String
+  previousQuarter     Int
+  previousQuarterLabel String
+  generatedLeads      Int
+  topIndustries       String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ============================================
+// LOAN GRACE PERIODS (from japfaLoanGracePeriods)
+// ============================================
+
+model RMActionPlanCache {
+  id            String   @id @default(uuid())
+  opportunityId String   @unique
+  result        Json
+  generatedAt   DateTime @default(now())
+  expiresAt     DateTime
+
+  @@index([opportunityId])
+}
+
+model LoanBankGroup {
+  id        String  @id @default(uuid())
+  shortName String
+  bank      String
+  facilities LoanFacility[]
+}
+
+model LoanFacility {
+  id           String  @id @default(uuid())
+  bankGroupId  String
+  borrowerType String  // 'Parent' | 'Subsidiary'
+  borrowerTag  String
+  facilityType String
+  expiryDate   String
+  expiryYear   Int
+  maxLimitRpM  Float
+  maxLimitNote String?
+
+  bankGroup    LoanBankGroup @relation(fields: [bankGroupId], references: [id], onDelete: Cascade)
+}
+
+model LoanFacilities {
+  id             Int      @id @default(autoincrement())
+  accountId      String
+  bank           String
+  bankShortName  String
+  borrowerTag    String
+  borrowerType   String
+  createdAt      DateTime @default(now())
+  expiryDate     DateTime @db.Date
+  expiryYear     Int
+  facilityType   String
+  fullInsight    String   @db.Text
+  insight        String   @db.Text
+  maxLimitNote   String   @db.Text
+  maxLimitRpM    BigInt   @db.BigInt
+  updatedAt      DateTime @updatedAt
+
+  account        Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// TRADE KPI RESULTS
+// ============================================
+
+model TradeKPIResult {
+  id             String   @id @default(uuid())
+  opportunityId  String
+  name           String
+  value          Json     // number | array | object
+  unit           String
+  property       String   // 'primaryStats' | 'secondaryStats' | 'other'
+
+  opportunity    Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId])
+}

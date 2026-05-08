@@ -1,0 +1,53 @@
+{
+  "LC": {
+    "product": "Letter of Credit",
+    "signals": [
+      "international trade",
+      "import/export",
+      "payment risk mitigation",
+      "documentary credit",
+      "payment certainty",
+      "trust between counterparties",
+      "manufacturing sector",
+      "trading sector",
+      "imported raw materials",
+      "export market expansion",
+      "material transaction values",
+      "overseas trading partners",
+      "payment instruments",
+      "trade finance",
+      "credit risk",
+      "transaction security",
+      "financial guarantees",
+      "trade documentation",
+      "counterparty risk"
+    ],
+    "generatedAt": "2026-05-06T15:06:13.264Z"
+  },
+  "SCF": {
+    "product": "Supply Chain Finance",
+    "signals": [
+      "supply chain finance",
+      "anchor buyers",
+      "supplier networks",
+      "working capital optimization",
+      "invoice financing",
+      "recurring invoice flows",
+      "long-term business relationships",
+      "payment and receivable tenors",
+      "cash flow stability",
+      "material transaction values",
+      "international trade",
+      "import/export",
+      "trade relationships",
+      "financial solutions",
+      "small-scale business partners",
+      "payment terms",
+      "trade credit",
+      "liquidity management",
+      "supply chain relationships",
+      "financial efficiency"
+    ],
+    "generatedAt": "2026-05-06T15:06:13.266Z"
+  }
+}

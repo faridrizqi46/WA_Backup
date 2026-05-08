@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  companyName String
+  industries  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  crawlResults CrawlResult[]
+}
+
+model CrawlResult {
+  id          String   @id @default(uuid())
+  companyId   String
+  url         String
+  title       String
+  content     String?
+  embedding   String?
+  createdAt   DateTime @default(now())
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
