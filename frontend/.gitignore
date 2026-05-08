@@ -47,3 +47,8 @@ next-env.d.ts
 
 .kilo
 /server
+
+# scripts with secrets
+scripts/check-jpmorgan.js
+scripts/run-migration.js
+scripts/test-connection.js
